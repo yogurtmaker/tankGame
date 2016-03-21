@@ -36,7 +36,7 @@ public class World {
        Box box = new Box(100, 0.1f,100);
         geomGround = new Geometry("ground", box);
         geomGround.setMaterial(matGround);
-         geomGround.setLocalTranslation(0, -2, 1);
+       //  geomGround.setLocalTranslation(0, -2, 1);
        geomGround.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         
         worldNode.attachChild(geomGround);

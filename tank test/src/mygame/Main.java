@@ -2,6 +2,8 @@ package mygame;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
@@ -27,6 +29,7 @@ public class Main extends SimpleApplication {
 
     Tank tank ;
      World world;
+     BulletAppState bullet;
     
     public static void main(String[] args) {
         Main app = new Main();
@@ -35,22 +38,25 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-
- 
-        
+        world = new World(this);
+        initPhysics();     
          tank = new Tank(this);
-         world = new World(this);
+         
         //
       // rootNode.attachChild(tank.tankNode);
        Texture skyText = assetManager.loadTexture("Textures/sky.jpg");
         Spatial sky = SkyFactory.createSky(assetManager,skyText,true);
          rootNode.attachChild(sky);
-        
+        initCam();
          initLight();
          keyControl();
      // rootNode.attachChild(geom);
     }
-    
+      private void initCam() {
+        flyCam.setEnabled(true);
+        cam.setLocation(new Vector3f(3f, 6f, -15f));
+        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
+    }
     
     private void initLight(){
     
@@ -61,17 +67,38 @@ public class Main extends SimpleApplication {
     }
 
      public void   keyControl(){
-      inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_J));
-        inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_L));
-        inputManager.addMapping("Ahead", new KeyTrigger(KeyInput.KEY_I));
-        inputManager.addMapping("Back", new KeyTrigger(KeyInput.KEY_K));
-        // add an analog listener, which reacts to the specified mapped strings
-        inputManager.addListener(tank, "Left", "Right","Ahead","Back");
+        inputManager.addMapping("Lefts", new KeyTrigger(KeyInput.KEY_H));
+        inputManager.addMapping("Rights", new KeyTrigger(KeyInput.KEY_K));
+        inputManager.addMapping("Ups", new KeyTrigger(KeyInput.KEY_U));
+        inputManager.addMapping("Downs", new KeyTrigger(KeyInput.KEY_J));
+        inputManager.addMapping("Space", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addMapping("Reset", new KeyTrigger(KeyInput.KEY_R));
+        inputManager.addListener(tank, "Lefts");
+        inputManager.addListener(tank, "Rights");
+        inputManager.addListener(tank, "Ups");
+        inputManager.addListener(tank, "Downs");
+        inputManager.addListener(tank, "Space");
+        inputManager.addListener(tank, "Reset");
+    
  
      }
      
-     
-     
+      private void initPhysics() {
+        // initialize the physics engine
+        bullet = new BulletAppState();
+        stateManager.attach(bullet);
+        //bullet.setDebugEnabled(true);
+
+        // add the ground
+        RigidBodyControl phyWorld = new RigidBodyControl(0.0f); // static: mass = 0
+        world.geomGround.addControl(phyWorld);
+        bullet.getPhysicsSpace().add(phyWorld);
+
+    }
+      
+    
+      
+      
     @Override
     public void simpleUpdate(float tpf) {
         //TODO: add update code
